@@ -1,0 +1,243 @@
+/* ===================================================================
+   RELIC HUNTER: THE ANCIENT TEMPLE - STYLESHEET (style.css)
+   Ancient Temple Theme, Visual FX, HUD, Modals & 2D Canvas Styling
+   =================================================================== */
+
+/* Offline Safety: Ensure .hidden works even without CDN Tailwind */
+.hidden {
+  display: none !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f1420;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b3654;
+  border-radius: 4px;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a16207;
+}
+
+
+/* Temple Stone Background Pattern */
+.bg-temple-pattern {
+  background-color: #0b0e17;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 10% 40%, rgba(234, 179, 8, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 40%, rgba(234, 179, 8, 0.05) 0%, transparent 40%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+}
+
+/* Ancient Stone Tablet & Card */
+.stone-card {
+  background: linear-gradient(145deg, #182033 0%, #101524 100%);
+  border: 2px solid #364468;
+  box-shadow: 
+    0 12px 30px -5px rgba(0, 0, 0, 0.7),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+.stone-card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: -1px; right: -1px; bottom: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+/* Inset Stone Effect */
+.shadow-stone-inset {
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.85), 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* Glow Shadows */
+.shadow-gold-glow {
+  box-shadow: 0 0 25px rgba(234, 179, 8, 0.45);
+}
+.shadow-torch-glow {
+  box-shadow: 0 0 35px rgba(249, 115, 22, 0.5);
+}
+.shadow-ruby-glow {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+}
+
+/* 2D Canvas Container & Viewport */
+#canvasContainer {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 
+    0 15px 40px rgba(0, 0, 0, 0.9),
+    0 0 0 2px #364468,
+    0 0 30px rgba(234, 179, 8, 0.15);
+  background: #080a10;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background-color: #090c14;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  user-select: none;
+}
+
+#scratchCanvas {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+
+/* Torch Flame Animation */
+@keyframes flameRise {
+  0% { transform: translateY(0) scale(1); opacity: 0.9; }
+  100% { transform: translateY(-40px) scale(0.2); opacity: 0; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0.92; transform: scale(1) skewX(0deg); }
+  25% { opacity: 1; transform: scale(1.06) skewX(1.5deg); }
+  50% { opacity: 0.85; transform: scale(0.96) skewX(-1deg); }
+  75% { opacity: 0.98; transform: scale(1.03) skewX(0.8deg); }
+}
+
+.animate-flicker {
+  animation: flicker 2.5s infinite alternate ease-in-out;
+}
+.animate-flicker-fast {
+  animation: flicker 1.2s infinite alternate ease-in-out;
+}
+
+/* Smoke Animation for Extinguished Torch */
+.smoke-puff {
+  animation: smokeRise 2s forwards ease-out;
+}
+@keyframes smokeRise {
+  0% { opacity: 0.8; transform: translateY(0) scale(0.8); filter: blur(2px); }
+  50% { opacity: 0.5; transform: translateY(-25px) scale(1.4); filter: blur(5px); }
+  100% { opacity: 0; transform: translateY(-50px) scale(2.2); filter: blur(8px); }
+}
+
+/* Screen Shake / Floor Crumble */
+.screen-collapse {
+  animation: collapseShake 1.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes collapseShake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-8px, -6px) rotate(-1deg); }
+  20% { transform: translate(8px, 6px) rotate(1.5deg); }
+  30% { transform: translate(-10px, 8px) rotate(-1.5deg); }
+  40% { transform: translate(10px, -8px) rotate(1deg); }
+  50% { transform: translate(-7px, 6px) rotate(-0.5deg); }
+  60% { transform: translate(7px, -5px) rotate(0.5deg); }
+  70% { transform: translate(-4px, 4px) rotate(0); }
+  80% { transform: translate(4px, -3px) rotate(0); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+
+/* Mobile On-Screen D-Pad / Touch Controls */
+.touch-btn {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  background: rgba(20, 26, 43, 0.85);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 0.75rem;
+  color: #fde047;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  transition: all 0.1s ease;
+}
+.touch-btn:active, .touch-btn.pressed {
+  background: rgba(234, 179, 8, 0.4);
+  transform: scale(0.92);
+  border-color: #fde047;
+  color: #ffffff;
+}
+
+/* Floating Rune Keyframes */
+@keyframes floatRune {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float-rune {
+  animation: floatRune 3s ease-in-out infinite;
+}
+
+/* Interactivity Prompt Pulse */
+@keyframes promptPulse {
+  0%, 100% { transform: translate(-50%, -100%) scale(1); opacity: 0.95; }
+  50% { transform: translate(-50%, -108%) scale(1.05); opacity: 1; filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.8)); }
+}
+.interact-prompt {
+  animation: promptPulse 1.6s ease-in-out infinite;
+}
+
+/* Touch Controls Visibility: Hidden on large desktop screens by default, visible on touch devices or when force-toggled */
+@media (min-width: 640px) {
+  #touchControlsContainer:not(.force-show) {
+    display: none !important;
+  }
+  #touchControlsContainer.force-show {
+    display: flex !important;
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  #touchControlsContainer {
+    display: flex !important;
+  }
+}
+
+/* Formula Customization & Preset Chips */
+.formula-chip {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-family: var(--font-mono, monospace);
+  background: rgba(20, 26, 43, 0.9);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  color: #fde047;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+.formula-chip:hover {
+  background: rgba(234, 179, 8, 0.25);
+  border-color: #fde047;
+  transform: translateY(-1px);
+  color: #ffffff;
+}
+.formula-chip:active {
+  transform: translateY(1px);
+}
+.formula-input {
+  transition: all 0.2s ease;
+}
+.formula-input:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4) !important;
+}
+
+
+

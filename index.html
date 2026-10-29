@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relic Hunter: The Ancient Temple | Game Edukasi Matematika 2D</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cinzel+Decorative:wght@700;900&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- Modular Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            cinzel: ['Cinzel', 'serif'],
+            cinzelDeco: ['Cinzel Decorative', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            temple: {
+              900: '#0a0d14',
+              850: '#0f1420',
+              800: '#141a2b',
+              700: '#1e263d',
+              600: '#2b3654',
+              gold: '#eab308',
+              'gold-light': '#fde047',
+              'gold-dark': '#a16207',
+              torch: '#f97316',
+              torchRed: '#ef4444',
+              sand: '#d4b483',
+              parchment: '#f4ebd0',
+              stone: '#857e74'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-temple-pattern text-slate-100 min-h-screen flex flex-col font-sans selection:bg-temple-gold selection:text-black">
+
+  <!-- ================= TOP HEADER NAVIGATION ================= -->
+  <header class="border-b border-temple-600/60 bg-temple-900/90 backdrop-blur-md sticky top-0 z-40 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 sm:px-6 flex items-center justify-between gap-2">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-gold-glow border border-amber-300/40">
+          <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L1 21h22L12 2zm0 3.84L19.5 19h-15L12 5.84zM11 9h2v4h-2V9zm0 6h2v2h-2v-2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-cinzel font-bold text-lg sm:text-xl tracking-wider text-amber-300 leading-tight">RELIC HUNTER</h1>
+            <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-mono uppercase" id="badgeMode">2D Kuil Kuno</span>
+          </div>
+          <p class="text-xs text-slate-400 font-cinzel tracking-widest hidden sm:block">THE ANCIENT TEMPLE OF MATHEMA</p>
+        </div>
+      </div>
+
+      <!-- Center Status: Team, Stopwatch (Visible during active gameplay) -->
+      <div id="topGameBar" class="hidden flex items-center gap-3 sm:gap-6 bg-temple-850/80 px-3 py-1.5 rounded-full border border-temple-600">
+        <!-- Team Badge -->
+        <div class="flex items-center gap-1.5 text-xs font-semibold">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="activeTeamName" class="text-amber-300">Tim Ekspedisi A</span>
+        </div>
+
+        <div class="h-4 w-px bg-slate-700"></div>
+
+        <!-- Stopwatch Display -->
+        <div class="flex items-center gap-1.5 font-mono text-sm sm:text-base font-bold text-emerald-300">
+          <svg class="w-4 h-4 text-emerald-400 animate-spin" style="animation-duration: 4s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"></path>
+          </svg>
+          <span id="stopwatchDisplay">00:00.0</span>
+        </div>
+      </div>
+
+      <!-- Top Tools & Modals Actions -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Audio Mute Button -->
+        <button id="btnAudioToggle" title="Suara Kuil Kuno" class="p-2 rounded-lg bg-temple-800 hover:bg-temple-700 text-amber-300 border border-temple-600 transition-all hover:scale-105 active:scale-95">
+          <svg id="iconAudioOn" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+          </svg>
+          <svg id="iconAudioOff" class="w-5 h-5 hidden text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+          </svg>
+        </button>
+
+        <!-- Rosetta Stone Modal Trigger -->
+        <button id="btnOpenRosetta" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/40 text-xs sm:text-sm font-cinzel font-semibold flex items-center gap-1.5 transition-all hover:scale-105">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          <span class="hidden md:inline">Batu</span> Rosetta
+        </button>
+
+        <!-- Scratchpad Trigger -->
+        <button id="btnOpenScratchpad" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-temple-800 hover:bg-temple-700 text-amber-200 border border-temple-600 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all hover:scale-105">
+          <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+          </svg>
+          <span class="hidden md:inline">Coretan</span> Invers
+        </button>
+
+        <!-- Reset / Home Button -->
+        <button id="btnNavHome" title="Kembali ke Beranda" class="p-2 rounded-lg bg-temple-800 hover:bg-temple-700 text-slate-400 hover:text-white border border-temple-600 transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN APP VIEWPORTS ================= -->
+  <main id="appContainer" class="flex-1 max-w-6xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-center">
+
+    <!-- ================= VIEW 1: HOME & MODE SELECTION ================= -->
+    <section id="viewHome" class="space-y-8 py-4">
+      
+      <!-- Hero Banner -->
+      <div class="text-center space-y-3 max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono tracking-wider">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          GAME PETUALANGAN 2D MATEMATIKA
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-cinzelDeco font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 tracking-wide drop-shadow-lg">
+          RELIC HUNTER
+        </h2>
+        <h3 class="text-base sm:text-xl font-cinzel text-amber-100 tracking-widest font-semibold">
+          THE ANCIENT TEMPLE OF MATHEMA (2D EDITION)
+        </h3>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto">
+          Kendalikan karakter arkeolog di dalam kuil kuno 2D, dekati batu prasasti untuk memecahkan sandi matematis, buka gerbang batu raksasa, dan jelajahi 4 level hingga menemukan <strong class="text-amber-300">Relik Suci</strong>!
+        </p>
+      </div>
+
+      <!-- Mode Selection Cards Grid -->
+      <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        
+        <!-- Mode 1: Auto Expedition -->
+        <div class="stone-card rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/60 transition-all duration-300 group hover:-translate-y-1">
+          <div class="space-y-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black transition-all">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div>
+              <span class="text-xs font-mono text-amber-400 tracking-widest uppercase">Petualangan 2D</span>
+              <h4 class="text-xl font-cinzel font-bold text-white group-hover:text-amber-300 transition-colors">
+                Mode Ekspedisi Langsung
+              </h4>
+              <p class="text-xs text-slate-400 mt-0.5">(Auto-Generator Soal Kuil)</p>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Jelajahi 4 ruangan kuil 2D secara bertahap. Pecahkan teka-teki fungsi linear & komposisi fungsi untuk membuka pintu dan hindari jebakan runtuh!
+            </p>
+            <div class="pt-2 border-t border-slate-700/60 space-y-1.5 text-xs text-slate-400 font-mono">
+              <div class="flex items-center gap-2">
+                <span class="text-amber-400">✓</span> Gerakan Karakter 2D (WASD / Panah / Sentuh)
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-amber-400">✓</span> Pintu Batu Bergeser & Level Transition
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-amber-400">✓</span> 2 Obor Kuil & Jebakan Reset Acak
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-700/60 space-y-3">
+            <div class="flex items-center gap-2">
+              <label for="selectTeamPreset" class="text-xs text-slate-300 font-semibold">Pilih Tim:</label>
+              <select id="selectTeamPreset" class="flex-1 bg-temple-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 focus:outline-none focus:border-amber-500">
+                <option value="Tim Ekspedisi A">Tim Ekspedisi A</option>
+                <option value="Tim Ekspedisi B">Tim Ekspedisi B</option>
+                <option value="Kustom">Kustom Nama...</option>
+              </select>
+            </div>
+            <input type="text" id="inputCustomTeamName" placeholder="Tulis nama tim kamu..." class="hidden w-full bg-temple-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+            <button id="btnStartAutoMode" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-black font-cinzel font-bold text-sm tracking-wider shadow-gold-glow flex items-center justify-center gap-2 transition-all active:scale-95">
+              <span>MASUK KUIL & MULAI MAIN 2D</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </button>
+            <div class="text-center pt-1">
+              <button id="btnHomeCustomize" type="button" class="text-xs text-amber-300/90 hover:text-amber-200 underline font-semibold transition-colors inline-flex items-center gap-1">
+                <span>⚙️ Ingin mengisi rumus sendiri? Kustomisasi Rumus Bebas ➔</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode 2: Duel Kelas -->
+        <div class="stone-card rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/60 transition-all duration-300 group hover:-translate-y-1">
+          <div class="space-y-4">
+            <div class="w-12 h-12 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 group-hover:scale-110 group-hover:bg-rose-500 group-hover:text-black transition-all">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0a8 8 0 001.5 4.67"/>
+              </svg>
+            </div>
+            <div>
+              <span class="text-xs font-mono text-rose-400 tracking-widest uppercase">Mode Tantangan</span>
+              <h4 class="text-xl font-cinzel font-bold text-white group-hover:text-rose-300 transition-colors">
+                Mode Duel Kelas 2D
+              </h4>
+              <p class="text-xs text-slate-400 mt-0.5">(Rancang Sandi & Tantang Lawan)</p>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              <strong>Fase 1:</strong> Tim Penantang merancang kalimat sandi dan rumus enkripsi untuk 4 pintu.<br>
+              <strong>Fase 2:</strong> Tim Pemecah Sandi mengendalikan karakter 2D untuk membuka 4 gerbang lawan!
+            </p>
+            <div class="pt-2 border-t border-slate-700/60 space-y-1.5 text-xs text-slate-400 font-mono">
+              <div class="flex items-center gap-2">
+                <span class="text-rose-400">✓</span> Kustomisasi 4 Tingkat Prasasti
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-rose-400">✓</span> Live Ciphertext Math Calculator
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-rose-400">✓</span> Kunci Rahasia Layar Interaktif
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-700/60">
+            <button id="btnOpenCustomSetup" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-rose-600 via-rose-700 to-rose-800 hover:from-rose-500 hover:to-rose-700 text-white font-cinzel font-bold text-sm tracking-wider shadow-ruby-glow flex items-center justify-center gap-2 transition-all active:scale-95">
+              <span>MASUK MODE DUEL KELAS</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Concept Guide Card -->
+      <div class="max-w-4xl mx-auto bg-temple-850/60 border border-slate-700/60 rounded-xl p-4 text-xs text-slate-300 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+          </div>
+          <div>
+            <span class="font-bold text-amber-300">Panduan Kontrol & Konsep Matematika:</span>
+            <p class="text-slate-400 mt-0.5">Gerakan: WASD / Panah | Interaksi: E / Spasi / Tombol Aksi | Invers: f⁻¹(y) & (g ∘ f)⁻¹(y)</p>
+          </div>
+        </div>
+        <button id="btnLearnConcepts" class="whitespace-nowrap px-3 py-1.5 bg-temple-700 hover:bg-temple-600 text-amber-200 border border-temple-600 rounded-lg font-semibold transition-all">
+          Pelajari Rumus ➔
+        </button>
+      </div>
+
+    </section>
+
+
+    <!-- ================= VIEW 2: DUEL KELAS & KUSTOM RUMUS (CUSTOM SETUP SCREEN) ================= -->
+    <section id="viewCustomSetup" class="hidden space-y-6 py-4 max-w-4xl mx-auto">
+      
+      <div class="stone-card rounded-2xl p-6 border-amber-500/40 shadow-gold-glow">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-mono tracking-wider mb-1">
+              <span>⚡</span> KUSTOMISASI RUMUS & SANDI KUIL
+            </div>
+            <h3 class="text-2xl font-cinzel font-bold text-white">Rancang Prasasti & Rumus Kuil Kuno</h3>
+            <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Kamu bisa <strong>mengisi rumus enkripsi sebebas mungkin</strong>! Ketik langsung rumus fungsi aljabar (contoh: <code class="text-amber-300 bg-temple-900 px-1 py-0.5 rounded">f(x) = 3x - 4</code>), tentukan nilai koefisien angka sesukamu, atau pilih preset cepat. Sistem akan otomatis menghitung rumus invers <code class="text-emerald-400 bg-temple-900 px-1 py-0.5 rounded">f⁻¹(y)</code> dan angka sandi kuil secara realtime!
+            </p>
+          </div>
+          <button id="btnCancelCustomSetup" class="self-start sm:self-center px-3.5 py-2 rounded-lg bg-temple-800 hover:bg-temple-700 text-slate-300 border border-slate-600 text-xs font-semibold flex items-center gap-1.5 transition-all">
+            <span>✕</span> Kembali ke Menu
+          </button>
+        </div>
+      </div>
+
+      <!-- Teams Setup -->
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="bg-temple-850 p-4 rounded-xl border border-slate-700">
+          <label class="block text-xs font-semibold text-amber-300 mb-1">Nama Tim Penantang / Pembuat Rumus:</label>
+          <input type="text" id="customChallengerTeam" value="Tim Ekspedisi A" class="w-full bg-temple-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+        </div>
+        <div class="bg-temple-850 p-4 rounded-xl border border-slate-700">
+          <label class="block text-xs font-semibold text-rose-300 mb-1">Nama Tim Pemecah Sandi / Petualang Kuil:</label>
+          <input type="text" id="customSolverTeam" value="Tim Ekspedisi B" class="w-full bg-temple-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500">
+        </div>
+      </div>
+
+      <!-- 4 Doors Inscriptions Setup -->
+      <div class="space-y-5">
+        
+        <!-- PINTU 1 -->
+        <div class="stone-card rounded-xl p-5 space-y-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/70 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center font-bold text-xs">1</span>
+              <span class="font-cinzel font-bold text-amber-300 text-sm">PINTU 1: Gerbang Luar Kuil (Tingkat Mudah)</span>
+            </div>
+            <span id="badgeFormula1" class="text-xs font-mono bg-temple-900 px-2.5 py-1 rounded text-amber-300 border border-amber-500/30 font-bold">f(x) = x + 5</span>
+          </div>
+
+          <!-- Teks Kata Sandi -->
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">Teks Prasasti Rahasia (Huruf Kapital / Kecil):</label>
+            <input type="text" id="customDoor1Text" value="Kunci" placeholder="Contoh: Kunci / KUNCI / Kuil" class="w-full bg-temple-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500">
+            <div class="text-[11px] text-slate-400 mt-0.5">Disarankan 1 kata untuk gerbang awal.</div>
+          </div>
+
+          <!-- Bagian Rumus Bebas Pintu 1 -->
+          <div class="bg-temple-900/80 rounded-xl p-3.5 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-amber-400 flex items-center gap-1.5">
+                <span>⚡</span> RUMUS ENKRIPSI PINTU 1 (Bebas Diisi):
+              </span>
+              <span id="badgeValid1" class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">✓ Valid</span>
+            </div>
+
+            <!-- Teks Rumus Langsung -->
+            <div class="space-y-1">
+              <label class="block text-[11px] text-slate-300">Ketik Rumus Bebas (contoh: <code class="text-amber-300 font-mono">f(x) = x + 5</code>, <code class="text-amber-300 font-mono">2x - 3</code>, <code class="text-amber-300 font-mono">x - 4</code>):</label>
+              <input type="text" id="customDoor1Formula" value="f(x) = x + 5" placeholder="Ketik rumus f(x) bebas..." class="w-full bg-temple-850 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-amber-200 focus:outline-none focus:border-amber-500 formula-input">
+            </div>
+
+            <!-- Preset Cepat Rumus -->
+            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+              <span class="text-[10px] text-slate-400 font-mono mr-1">Preset Cepat:</span>
+              <button type="button" class="formula-chip" data-door="1" data-formula="f(x) = x + 5">f(x) = x + 5</button>
+              <button type="button" class="formula-chip" data-door="1" data-formula="f(x) = x + 3">f(x) = x + 3</button>
+              <button type="button" class="formula-chip" data-door="1" data-formula="f(x) = x - 4">f(x) = x - 4</button>
+              <button type="button" class="formula-chip" data-door="1" data-formula="f(x) = 2x + 1">f(x) = 2x + 1</button>
+              <button type="button" class="formula-chip" data-door="1" data-formula="f(x) = 3x - 2">f(x) = 3x - 2</button>
+            </div>
+
+            <!-- Parameter Koefisien Angka Bebas -->
+            <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-800">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-0.5">Koefisien a (f(x) = ax + b):</label>
+                <input type="number" id="customDoor1A" value="1" step="any" placeholder="1" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2.5 py-1 text-sm font-mono text-white focus:outline-none focus:border-amber-500">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-0.5">Konstanta b (bebas positif/negatif):</label>
+                <input type="number" id="customDoor1B" value="5" step="any" placeholder="5" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2.5 py-1 text-sm font-mono text-white focus:outline-none focus:border-amber-500">
+              </div>
+            </div>
+
+            <!-- Hasil Invers & Penjelasan Realtime -->
+            <div class="p-2.5 rounded-lg bg-temple-850/90 border border-slate-700/80 text-xs font-mono space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Rumus Invers Pemecah:</span>
+                <span id="previewInverse1" class="text-emerald-300 font-bold">f⁻¹(y) = y - 5</span>
+              </div>
+              <div id="previewExpl1" class="text-[11px] text-slate-400 leading-tight">
+                Kurangkan setiap angka sandi dengan 5 untuk mendapatkan nilai huruf asli.
+              </div>
+            </div>
+          </div>
+
+          <!-- Pratinjau Ciphertext -->
+          <div class="p-2.5 rounded-lg bg-temple-900/90 border border-slate-800 text-xs font-mono flex items-center justify-between">
+            <span class="text-slate-400">Pratinjau Ciphertext Angka:</span>
+            <span id="previewCipher1" class="text-amber-300 font-bold tracking-wider">[ ... ]</span>
+          </div>
+        </div>
+
+        <!-- PINTU 2 -->
+        <div class="stone-card rounded-xl p-5 space-y-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/70 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40 flex items-center justify-center font-bold text-xs">2</span>
+              <span class="font-cinzel font-bold text-sky-300 text-sm">PINTU 2: Lorong Katakomba (Tingkat Sedang)</span>
+            </div>
+            <span id="badgeFormula2" class="text-xs font-mono bg-temple-900 px-2.5 py-1 rounded text-sky-300 border border-sky-500/30 font-bold">f(x) = 2x + 3</span>
+          </div>
+
+          <!-- Teks Kata Sandi -->
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">Teks Prasasti Rahasia (Huruf Kapital / Kecil):</label>
+            <input type="text" id="customDoor2Text" value="Obor Emas Kuil" placeholder="Contoh: Obor Emas Kuil" class="w-full bg-temple-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500">
+            <div class="text-[11px] text-slate-400 mt-0.5">Disarankan 2 s/d 3 kata.</div>
+          </div>
+
+          <!-- Bagian Rumus Bebas Pintu 2 -->
+          <div class="bg-temple-900/80 rounded-xl p-3.5 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-sky-400 flex items-center gap-1.5">
+                <span>⚡</span> RUMUS ENKRIPSI PINTU 2 (Bebas Diisi):
+              </span>
+              <span id="badgeValid2" class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">✓ Valid</span>
+            </div>
+
+            <!-- Teks Rumus Langsung -->
+            <div class="space-y-1">
+              <label class="block text-[11px] text-slate-300">Ketik Rumus Bebas (contoh: <code class="text-sky-300 font-mono">f(x) = 2x + 3</code>, <code class="text-sky-300 font-mono">3x - 5</code>, <code class="text-sky-300 font-mono">4x + 7</code>):</label>
+              <input type="text" id="customDoor2Formula" value="f(x) = 2x + 3" placeholder="Ketik rumus f(x) bebas..." class="w-full bg-temple-850 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-sky-200 focus:outline-none focus:border-sky-500 formula-input">
+            </div>
+
+            <!-- Preset Cepat Rumus -->
+            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+              <span class="text-[10px] text-slate-400 font-mono mr-1">Preset Cepat:</span>
+              <button type="button" class="formula-chip" data-door="2" data-formula="f(x) = 2x + 3">f(x) = 2x + 3</button>
+              <button type="button" class="formula-chip" data-door="2" data-formula="f(x) = 3x - 2">f(x) = 3x - 2</button>
+              <button type="button" class="formula-chip" data-door="2" data-formula="f(x) = 4x + 1">f(x) = 4x + 1</button>
+              <button type="button" class="formula-chip" data-door="2" data-formula="f(x) = 2x - 7">f(x) = 2x - 7</button>
+              <button type="button" class="formula-chip" data-door="2" data-formula="f(x) = -2x + 9">f(x) = -2x + 9</button>
+            </div>
+
+            <!-- Parameter Koefisien Angka Bebas -->
+            <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-800">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-0.5">Koefisien a (a ≠ 0):</label>
+                <input type="number" id="customDoor2A" value="2" step="any" placeholder="2" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2.5 py-1 text-sm font-mono text-white focus:outline-none focus:border-sky-500">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-0.5">Konstanta b (bebas):</label>
+                <input type="number" id="customDoor2B" value="3" step="any" placeholder="3" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2.5 py-1 text-sm font-mono text-white focus:outline-none focus:border-sky-500">
+              </div>
+            </div>
+
+            <!-- Hasil Invers & Penjelasan Realtime -->
+            <div class="p-2.5 rounded-lg bg-temple-850/90 border border-slate-700/80 text-xs font-mono space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Rumus Invers Pemecah:</span>
+                <span id="previewInverse2" class="text-emerald-300 font-bold">f⁻¹(y) = (y - 3) / 2</span>
+              </div>
+              <div id="previewExpl2" class="text-[11px] text-slate-400 leading-tight">
+                Kurangkan setiap angka dengan 3, lalu bagi hasilnya dengan 2.
+              </div>
+            </div>
+          </div>
+
+          <!-- Pratinjau Ciphertext -->
+          <div class="p-2.5 rounded-lg bg-temple-900/90 border border-slate-800 text-xs font-mono flex items-center justify-between">
+            <span class="text-slate-400">Pratinjau Ciphertext Angka:</span>
+            <span id="previewCipher2" class="text-sky-300 font-bold tracking-wider">[ ... ]</span>
+          </div>
+        </div>
+
+        <!-- PINTU 3 -->
+        <div class="stone-card rounded-xl p-5 space-y-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/70 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center justify-center font-bold text-xs">3</span>
+              <span class="font-cinzel font-bold text-purple-300 text-sm">PINTU 3: Ruang Altar Kuno (Komposisi Fungsi)</span>
+            </div>
+            <span id="badgeFormula3" class="text-xs font-mono bg-temple-900 px-2.5 py-1 rounded text-purple-300 border border-purple-500/30 font-bold">(g ∘ f)(x) = 6x + 5</span>
+          </div>
+
+          <!-- Teks Kata Sandi -->
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">Teks Prasasti Rahasia (Huruf Kapital / Kecil):</label>
+            <input type="text" id="customDoor3Text" value="Buka Peti Di Bawah Altar" class="w-full bg-temple-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500">
+            <div class="text-[11px] text-slate-400 mt-0.5">Disarankan 4 s/d 6 kata.</div>
+          </div>
+
+          <!-- Bagian Rumus Bebas Pintu 3 -->
+          <div class="bg-temple-900/80 rounded-xl p-3.5 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-purple-400 flex items-center gap-1.5">
+                <span>⚡</span> RUMUS KOMPOSISI PINTU 3 (Bebas Diisi):
+              </span>
+              <span id="badgeValid3" class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">✓ Valid</span>
+            </div>
+
+            <!-- Teks Rumus Komposisi Langsung -->
+            <div class="space-y-1">
+              <label class="block text-[11px] text-slate-300">Ketik Rumus Gabungan Langsung atau Dua Fungsi:</label>
+              <input type="text" id="customDoor3Formula" value="(g ∘ f)(x) = 6x + 5" placeholder="Contoh: (g ∘ f)(x) = 6x + 5 atau 4x - 3" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-purple-200 focus:outline-none focus:border-purple-500 formula-input">
+            </div>
+
+            <!-- Preset Cepat Rumus Komposisi -->
+            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+              <span class="text-[10px] text-slate-400 font-mono mr-1">Preset Komposisi:</span>
+              <button type="button" class="formula-chip" data-door="3" data-a="2" data-b="1" data-c="3" data-d="2" data-formula="(g ∘ f)(x) = 6x + 5">3(2x+1)+2 ➔ 6x + 5</button>
+              <button type="button" class="formula-chip" data-door="3" data-a="2" data-b="3" data-c="2" data-d="-1" data-formula="(g ∘ f)(x) = 4x + 5">2(2x+3)-1 ➔ 4x + 5</button>
+              <button type="button" class="formula-chip" data-door="3" data-a="3" data-b="2" data-c="2" data-d="-3" data-formula="(g ∘ f)(x) = 6x + 1">2(3x+2)-3 ➔ 6x + 1</button>
+              <button type="button" class="formula-chip" data-door="3" data-formula="(g ∘ f)(x) = 5x - 4">Langsung: 5x - 4</button>
+            </div>
+
+            <!-- Parameter Koefisien Dua Fungsi f(x) dan g(x) -->
+            <div class="space-y-1 pt-1 border-t border-slate-800">
+              <div class="text-[11px] text-slate-400 font-mono">Atau atur fungsi f(x) = ax + b dan g(x) = cx + d secara terpisah:</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                  <label class="block text-[10px] text-slate-400">f(x): a</label>
+                  <input type="number" id="customDoor3A" value="2" step="any" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400">f(x): b</label>
+                  <input type="number" id="customDoor3B" value="1" step="any" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400">g(x): c</label>
+                  <input type="number" id="customDoor3C" value="3" step="any" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400">g(x): d</label>
+                  <input type="number" id="customDoor3D" value="2" step="any" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                </div>
+              </div>
+            </div>
+
+            <!-- Hasil Invers & Penjelasan Realtime -->
+            <div class="p-2.5 rounded-lg bg-temple-850/90 border border-slate-700/80 text-xs font-mono space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Bentuk Gabungan:</span>
+                <span id="previewComp3" class="text-amber-400 font-bold">(g ∘ f)(x) = 6x + 5</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Rumus Invers:</span>
+                <span id="previewInverse3" class="text-emerald-300 font-bold">(g ∘ f)⁻¹(y) = (y - 5) / 6</span>
+              </div>
+              <div id="previewExpl3" class="text-[11px] text-slate-400 leading-tight">
+                Gabungan fungsi: 6x + 5. Invers: kurangkan 5 lalu bagi 6.
+              </div>
+            </div>
+          </div>
+
+          <!-- Pratinjau Ciphertext -->
+          <div class="p-2.5 rounded-lg bg-temple-900/90 border border-slate-800 text-xs font-mono flex items-center justify-between">
+            <span class="text-slate-400">Pratinjau Ciphertext Angka:</span>
+            <span id="previewCipher3" class="text-purple-300 font-bold tracking-wider">[ ... ]</span>
+          </div>
+        </div>
+
+        <!-- PINTU 4 (BOSS LEVEL) -->
+        <div class="stone-card rounded-xl p-5 space-y-3.5 border-rose-500/40">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/70 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center justify-center font-bold text-xs">4</span>
+              <span class="font-cinzel font-bold text-rose-300 text-sm">PINTU UTAMA: Ruang Relik Suci (Boss Level)</span>
+            </div>
+            <span id="badgeFormula4" class="text-xs font-mono bg-temple-900 px-2.5 py-1 rounded text-rose-300 border border-rose-500/30 font-bold">(g ∘ f)(x) = 8x + 13</span>
+          </div>
+
+          <!-- Teks Kata Sandi -->
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">Teks Prasasti Rahasia (Kalimat Panjang):</label>
+            <textarea id="customDoor4Text" rows="2" class="w-full bg-temple-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500">Siapa Yang Menjaga Kesucian Kuil Akan Mendapatkan Berkah Emas Abadi</textarea>
+            <div class="text-[11px] text-slate-400 mt-0.5">Disarankan kalimat panjang (7 kata atau lebih) sebagai tantangan puncak!</div>
+          </div>
+
+          <!-- Bagian Rumus Bebas Pintu 4 -->
+          <div class="bg-temple-900/80 rounded-xl p-3.5 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-rose-400 flex items-center gap-1.5">
+                <span>⚡</span> RUMUS KOMPOSISI BOSS LEVEL (Bebas Diisi):
+              </span>
+              <span id="badgeValid4" class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">✓ Valid</span>
+            </div>
+
+            <!-- Teks Rumus Komposisi Langsung -->
+            <div class="space-y-1">
+              <label class="block text-[11px] text-slate-300">Ketik Rumus Gabungan Langsung atau Dua Fungsi:</label>
+              <input type="text" id="customDoor4Formula" value="(g ∘ f)(x) = 8x + 13" placeholder="Contoh: (g ∘ f)(x) = 8x + 13 atau 10x - 7" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-rose-200 focus:outline-none focus:border-rose-500 formula-input">
+            </div>
+
+            <!-- Preset Cepat Rumus Komposisi Boss -->
+            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+              <span class="text-[10px] text-slate-400 font-mono mr-1">Preset Komposisi:</span>
+              <button type="button" class="formula-chip" data-door="4" data-a="2" data-b="3" data-c="4" data-d="1" data-formula="(g ∘ f)(x) = 8x + 13">4(2x+3)+1 ➔ 8x + 13</button>
+              <button type="button" class="formula-chip" data-door="4" data-a="3" data-b="2" data-c="3" data-d="4" data-formula="(g ∘ f)(x) = 9x + 10">3(3x+2)+4 ➔ 9x + 10</button>
+              <button type="button" class="formula-chip" data-door="4" data-a="2" data-b="-1" data-c="5" data-d="3" data-formula="(g ∘ f)(x) = 10x - 2">5(2x-1)+3 ➔ 10x - 2</button>
+              <button type="button" class="formula-chip" data-door="4" data-formula="(g ∘ f)(x) = 12x - 5">Langsung: 12x - 5</button>
+            </div>
+
+            <!-- Parameter Koefisien Dua Fungsi f(x) dan g(x) -->
+            <div class="space-y-1 pt-1 border-t border-slate-800">
+              <div class="text-[11px] text-slate-400 font-mono">Atau atur fungsi f(x) = ax + b dan g(x) = cx + d secara terpisah:</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                  <label class="block text-[10px] text-slate-400">f(x): a</label>
+                  <input type="number" id="customDoor4A" value="2" step="any" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400">f(x): b</label>
+                  <input type="number" id="customDoor4B" value="3" step="any" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400">g(x): c</label>
+                  <input type="number" id="customDoor4C" value="4" step="any" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400">g(x): d</label>
+                  <input type="number" id="customDoor4D" value="1" step="any" class="w-full bg-temple-850 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                </div>
+              </div>
+            </div>
+
+            <!-- Hasil Invers & Penjelasan Realtime -->
+            <div class="p-2.5 rounded-lg bg-temple-850/90 border border-slate-700/80 text-xs font-mono space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Bentuk Gabungan:</span>
+                <span id="previewComp4" class="text-amber-400 font-bold">(g ∘ f)(x) = 8x + 13</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Rumus Invers:</span>
+                <span id="previewInverse4" class="text-emerald-300 font-bold">(g ∘ f)⁻¹(y) = (y - 13) / 8</span>
+              </div>
+              <div id="previewExpl4" class="text-[11px] text-slate-400 leading-tight">
+                Komposisi boss: 8x + 13. Invers: kurangkan 13 lalu bagi 8.
+              </div>
+            </div>
+          </div>
+
+          <!-- Pratinjau Ciphertext -->
+          <div class="p-2.5 rounded-lg bg-temple-900/90 border border-slate-800 text-xs font-mono flex items-center justify-between">
+            <span class="text-slate-400">Pratinjau Ciphertext Angka:</span>
+            <span id="previewCipher4" class="text-rose-300 font-bold tracking-wider">[ ... ]</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Selection: Play Direct Solo OR Lock for Duel -->
+      <div class="stone-card rounded-2xl p-6 text-center space-y-4">
+        <div class="flex items-center justify-center gap-2 text-amber-300 text-xs sm:text-sm font-semibold">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <span>Pilih cara bermain: Mainkan langsung petualangan 2D atau kunci untuk duel lawan!</span>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5">
+          <button id="btnStartCustomSolo" type="button" class="w-full sm:w-auto py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-black font-cinzel font-bold text-sm tracking-wider shadow-gold-glow flex items-center justify-center gap-2 transition-all active:scale-95">
+            <span>🎮 MAIN LANGSUNG DENGAN RUMUS INI</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </button>
+          
+          <button id="btnLockAndStartDuel" type="button" class="w-full sm:w-auto py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-600 via-rose-700 to-rose-800 hover:from-rose-500 hover:to-rose-700 text-white font-cinzel font-bold text-sm tracking-wider shadow-ruby-glow flex items-center justify-center gap-2 transition-all active:scale-95">
+            <span>🔒 KUNCI SANDI & TANTANG LAWAN (DUEL)</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+
+
+    <!-- ================= VIEW 3: 2D GAME STAGE ================= -->
+    <section id="viewGameStage" class="hidden space-y-4 py-1">
+      
+      <!-- Top HUD: Progress & 2 Torches -->
+      <div class="stone-card rounded-xl p-3 sm:p-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          
+          <!-- 4 Door Indicators -->
+          <div class="flex-1 grid grid-cols-4 gap-2">
+            <div id="stepDoor1" class="p-1.5 sm:p-2 rounded-lg border text-center transition-all bg-amber-500/10 border-amber-500 text-amber-300 shadow-gold-glow">
+              <div class="text-[10px] font-mono uppercase text-amber-400">Pintu 1</div>
+              <div class="font-cinzel font-bold text-xs truncate">Gerbang Luar</div>
+            </div>
+            <div id="stepDoor2" class="p-1.5 sm:p-2 rounded-lg border text-center transition-all bg-temple-900 border-slate-700 text-slate-500 opacity-60">
+              <div class="text-[10px] font-mono uppercase">Pintu 2</div>
+              <div class="font-cinzel font-bold text-xs truncate">Katakomba</div>
+            </div>
+            <div id="stepDoor3" class="p-1.5 sm:p-2 rounded-lg border text-center transition-all bg-temple-900 border-slate-700 text-slate-500 opacity-60">
+              <div class="text-[10px] font-mono uppercase">Pintu 3</div>
+              <div class="font-cinzel font-bold text-xs truncate">Altar Kuno</div>
+            </div>
+            <div id="stepDoor4" class="p-1.5 sm:p-2 rounded-lg border text-center transition-all bg-temple-900 border-slate-700 text-slate-500 opacity-60">
+              <div class="text-[10px] font-mono uppercase">Pintu 4</div>
+              <div class="font-cinzel font-bold text-xs truncate">Relik Suci</div>
+            </div>
+          </div>
+
+          <!-- Chamber Title & Torch Status -->
+          <div class="flex items-center justify-between md:justify-end gap-3 sm:gap-4 bg-temple-900/90 px-3 py-1.5 rounded-xl border border-temple-600 flex-wrap">
+            <div class="text-xs font-cinzel font-bold text-amber-300" id="hudChamberTitle">
+              PINTU 1: Gerbang Luar Kuil
+            </div>
+
+            <!-- Player Health (Hearts) -->
+            <div id="hudPlayerHealth" class="flex items-center gap-1.5 bg-rose-950/40 border border-rose-500/40 px-2 sm:px-2.5 py-1 rounded-lg" title="Kesehatan Peneliti (Awas Jebakan Kuil!)">
+              <span class="text-[10px] font-mono uppercase text-rose-300 font-bold hidden sm:inline">Darah:</span>
+              <div id="heartsContainer" class="flex items-center gap-0.5 text-xs sm:text-sm text-rose-500 select-none">
+                <span id="heart1">❤️</span>
+                <span id="heart2">❤️</span>
+                <span id="heart3">❤️</span>
+              </div>
+            </div>
+
+            <!-- 2 Torches -->
+            <div class="flex items-center gap-2">
+              <!-- Torch 1 -->
+              <div id="torch1Container" class="relative flex flex-col items-center">
+                <div id="flame1" class="w-6 h-8 animate-flicker">
+                  <svg viewBox="0 0 24 32" class="w-full h-full filter drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">
+                    <path fill="#dc2626" d="M12 0C12 7 6 12 6 19a6 6 0 0012 0c0-7-6-12-6-19z"/>
+                    <path fill="#f97316" d="M12 6c0 5-4 8.5-4 13.5a4 4 0 008 0C16 14.5 12 11 12 6z"/>
+                    <path fill="#fde047" d="M12 12c0 3-2 5-2 8a2 2 0 004 0c0-3-2-5-2-8z"/>
+                  </svg>
+                </div>
+                <div id="smoke1" class="hidden absolute -top-4 w-6 h-6 text-slate-500 smoke-puff">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+                  </svg>
+                </div>
+                <div class="w-3 h-5 bg-gradient-to-b from-amber-800 to-amber-950 rounded-b border border-amber-700/50 -mt-1 shadow-inner"></div>
+              </div>
+
+              <!-- Torch 2 -->
+              <div id="torch2Container" class="relative flex flex-col items-center">
+                <div id="flame2" class="w-6 h-8 animate-flicker-fast">
+                  <svg viewBox="0 0 24 32" class="w-full h-full filter drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">
+                    <path fill="#dc2626" d="M12 0C12 7 6 12 6 19a6 6 0 0012 0c0-7-6-12-6-19z"/>
+                    <path fill="#f97316" d="M12 6c0 5-4 8.5-4 13.5a4 4 0 008 0C16 14.5 12 11 12 6z"/>
+                    <path fill="#fde047" d="M12 12c0 3-2 5-2 8a2 2 0 004 0c0-3-2-5-2-8z"/>
+                  </svg>
+                </div>
+                <div id="smoke2" class="hidden absolute -top-4 w-6 h-6 text-slate-500 smoke-puff">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+                  </svg>
+                </div>
+                <div class="w-3 h-5 bg-gradient-to-b from-amber-800 to-amber-950 rounded-b border border-amber-700/50 -mt-1 shadow-inner"></div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 2D Canvas Viewport -->
+      <div id="canvasContainer" class="relative">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Controls Legend Overlay -->
+        <div class="absolute top-3 left-3 bg-temple-900/85 backdrop-blur-sm border border-slate-700 px-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-300 hidden sm:flex items-center gap-2 shadow-lg">
+          <span>⌨️ Bergerak: <strong class="text-amber-300">W, A, S, D / Panah</strong> | Dekati Prasasti: <strong class="text-amber-300">E / Spasi</strong> | <span class="text-rose-400 font-bold">⚠️ Hindari Jebakan Kuil!</span></span>
+          <button id="btnToggleTouchControls" type="button" class="ml-2 px-2 py-0.5 rounded bg-temple-800 hover:bg-temple-700 text-amber-300 border border-slate-600 text-[10px] transition-colors cursor-pointer" title="Tampilkan / Sembunyikan Virtual D-Pad">
+            🎮 D-Pad
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile / Tablet Touch Controls (Virtual D-Pad & Action Button) -->
+      <div id="touchControlsContainer" class="flex items-center justify-between p-3 bg-temple-900/90 rounded-2xl border border-slate-700">
+        <!-- Virtual D-Pad -->
+        <div class="grid grid-cols-3 gap-1.5 w-36 h-36">
+          <div></div>
+          <button id="btnTouchUp" class="touch-btn text-lg font-bold">▲</button>
+          <div></div>
+          <button id="btnTouchLeft" class="touch-btn text-lg font-bold">◀</button>
+          <div class="flex items-center justify-center text-slate-600 text-xs font-mono">D-PAD</div>
+          <button id="btnTouchRight" class="touch-btn text-lg font-bold">▶</button>
+          <div></div>
+          <button id="btnTouchDown" class="touch-btn text-lg font-bold">▼</button>
+          <div></div>
+        </div>
+
+        <!-- Action / Interact Button -->
+        <div class="flex flex-col items-center gap-1">
+          <button id="btnTouchInteract" class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300 text-black font-cinzel font-bold text-xs flex flex-col items-center justify-center shadow-gold-glow active:scale-95">
+            <span class="text-xl">📜</span>
+            <span>BUKA</span>
+            <span class="text-[9px]">SANDI</span>
+          </button>
+          <span class="text-[10px] text-amber-400 font-mono">Aksi Prasasti</span>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ================= VIEW 4: VICTORY SCREEN ================= -->
+    <section id="viewVictory" class="hidden space-y-6 py-6 max-w-4xl mx-auto">
+      
+      <div class="stone-card rounded-2xl p-6 sm:p-10 text-center space-y-4 border-amber-400 shadow-gold-glow">
+        <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700 p-1 flex items-center justify-center shadow-gold-glow">
+          <div class="w-full h-full bg-temple-900 rounded-full flex items-center justify-center text-amber-300">
+            <svg class="w-12 h-12 animate-bounce" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <span class="text-xs font-mono tracking-widest text-amber-400 uppercase">Ekspedisi Sukses & Gerbang Relik Terbuka!</span>
+          <h2 class="text-3xl sm:text-4xl font-cinzelDeco font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-500">
+            RELIK SUCI TELAH DIAMBIL!
+          </h2>
+          <p id="victoryTeamSubtext" class="text-sm sm:text-base font-cinzel text-amber-200">
+            Selamat, Tim Ekspedisi telah menembus seluruh 4 Pintu Kuil Mathema!
+          </p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-700/80">
+          <div class="bg-temple-900/80 p-3 rounded-xl border border-slate-700">
+            <div class="text-[10px] text-slate-400 font-mono">WAKTU TOTAL</div>
+            <div id="statTotalTime" class="text-base sm:text-lg font-bold font-mono text-emerald-400 mt-0.5">00:00.0</div>
+          </div>
+          <div class="bg-temple-900/80 p-3 rounded-xl border border-slate-700">
+            <div class="text-[10px] text-slate-400 font-mono">SISA OBOR</div>
+            <div id="statRemainingTorches" class="text-base sm:text-lg font-bold font-mono text-amber-400 mt-0.5">2 Obor</div>
+          </div>
+          <div class="bg-temple-900/80 p-3 rounded-xl border border-slate-700">
+            <div class="text-[10px] text-slate-400 font-mono">KOMPAS HINT</div>
+            <div id="statHintUsed" class="text-base sm:text-lg font-bold font-mono text-sky-400 mt-0.5">Tidak Dipakai</div>
+          </div>
+          <div class="bg-temple-900/80 p-3 rounded-xl border border-slate-700">
+            <div class="text-[10px] text-slate-400 font-mono">RESET JEBAKAN</div>
+            <div id="statTrapResets" class="text-base sm:text-lg font-bold font-mono text-rose-400 mt-0.5">0 Kali</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mathematical Review -->
+      <div class="stone-card rounded-2xl p-6 space-y-4">
+        <div class="flex items-center gap-3 border-b border-slate-700/70 pb-3">
+          <div class="p-2 rounded-lg bg-amber-500/20 text-amber-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-cinzel font-bold text-base sm:text-lg text-white">Ringkasan Pemecahan Rumus Invers Kuil</h3>
+            <p class="text-xs text-slate-400">Pembuktian aljabar yang berhasil dipecahkan sepanjang 4 level kuil 2D.</p>
+          </div>
+        </div>
+
+        <div id="victoryReviewList" class="space-y-3">
+          <!-- Populated by game.js -->
+        </div>
+      </div>
+
+      <!-- Action Navigation -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button id="btnPlayAgain" class="w-full sm:w-auto py-3 px-8 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-black font-cinzel font-bold text-sm tracking-wider shadow-gold-glow transition-all active:scale-95">
+          MAIN LAGI (SOAL BARU)
+        </button>
+        <button id="btnSwitchToDuel" class="w-full sm:w-auto py-3 px-6 rounded-xl bg-temple-800 hover:bg-temple-700 text-amber-300 border border-slate-700 font-semibold text-xs transition-all">
+          GANTI KE MODE DUEL KELAS
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ================= MODAL: DECRYPTION PRASASTI PUZZLE ================= -->
+  <div id="modalDecryption" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="stone-card rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-4 border-amber-500 shadow-2xl max-h-[95vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span id="modalDoorDiff" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Mudah</span>
+            <span class="text-xs text-slate-400 font-mono">Batu Prasasti Kuno</span>
+          </div>
+          <h3 id="modalDoorTitle" class="font-cinzel font-bold text-lg sm:text-xl text-white mt-0.5">PINTU 1: Gerbang Luar Kuil</h3>
+        </div>
+        <button id="btnCloseDecryption" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Cipher Numbers -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-300">
+          <span class="text-amber-400 font-semibold">DERETAN SANDI ANGKA (CIPHERTEXT):</span>
+          <span id="modalCipherCount" class="text-slate-400 text-[11px]">Total: 5 Angka</span>
+        </div>
+        <div class="bg-temple-900/90 rounded-xl p-3 border border-slate-700 shadow-stone-inset">
+          <div id="modalCipherContainer" class="flex flex-wrap items-center justify-center gap-2 py-1">
+            <!-- Rendered by game.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Formula Tablet -->
+      <div class="bg-gradient-to-r from-amber-950/40 via-temple-800 to-amber-950/40 p-3.5 rounded-xl border border-amber-500/40 space-y-1">
+        <div class="text-[11px] font-mono uppercase text-amber-400 flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span>⚡</span> RUMUS ENKRIPSI KUIL:
+          </div>
+          <button id="btnQuickMathHelp" type="button" class="text-[11px] text-amber-300 hover:text-amber-200 underline font-sans flex items-center gap-1 transition-colors">
+            <span>📖</span> Panduan Rumus
+          </button>
+        </div>
+        <div id="modalFormulaRule" class="font-mono text-sm sm:text-base font-bold text-amber-200">
+          f(x) = x + 5
+        </div>
+        <div class="text-[11px] text-slate-400">
+          Carilah fungsi invers untuk mendekripsi angka sandi di atas menjadi teks asli prasasti!
+        </div>
+      </div>
+
+      <!-- Input Field -->
+      <div class="space-y-3">
+        <div>
+          <label for="inputPlaintextAnswer" class="block text-xs text-slate-300 font-semibold mb-1 flex items-center justify-between">
+            <span>Terjemahan Teks Prasasti:</span>
+            <span class="text-[10px] text-amber-400 font-normal font-mono">Bisa huruf kapital / kecil</span>
+          </label>
+          <div class="relative">
+            <input type="text" id="inputPlaintextAnswer" autocomplete="off" placeholder="Ketik hasil terjemahan di sini (kapital / kecil)..." class="w-full bg-temple-900 border-2 border-slate-600 focus:border-amber-400 rounded-xl px-4 py-2.5 text-base font-mono tracking-widest text-white focus:outline-none">
+            <button id="btnClearInput" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <button id="btnSubmitAnswer" class="w-full sm:flex-1 py-3 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-black font-cinzel font-bold text-sm tracking-wider shadow-gold-glow flex items-center justify-center gap-2 active:scale-95">
+            <span>UJI SANDI PRASASTI</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+          </button>
+          <button id="btnAncientCompass" class="w-full sm:w-auto py-3 px-4 rounded-xl bg-temple-800 border border-slate-700 text-xs font-cinzel font-bold text-amber-300 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed">
+            <span>🧭 Hint Kompas</span>
+            <span id="compassUsageBadge" class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.2 rounded">1x</span>
+          </button>
+          <button id="btnOpenScratchpadInline" class="w-full sm:w-auto py-3 px-3 rounded-xl bg-temple-800 hover:bg-temple-700 text-slate-300 border border-slate-700 text-xs font-semibold">
+            ✏️ Coretan
+          </button>
+        </div>
+
+        <!-- Feedback Alert -->
+        <div id="doorFeedbackAlert" class="hidden p-3 rounded-xl border text-xs font-semibold flex items-center gap-2.5">
+          <span id="feedbackIcon" class="text-lg"></span>
+          <div class="flex-1">
+            <div id="feedbackTitle" class="font-bold"></div>
+            <div id="feedbackDesc" class="text-[11px] font-normal opacity-90"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: BATU ROSETTA ================= -->
+  <div id="modalRosetta" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6">
+    <div class="stone-card rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col border-amber-500/50 shadow-2xl">
+      <div class="p-4 sm:p-5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center font-cinzel font-bold text-lg">
+            Ω
+          </div>
+          <div>
+            <h3 class="font-cinzel font-bold text-lg text-amber-300">BATU ROSETTA MATHEMA</h3>
+            <p class="text-xs text-slate-300">Tabel Kuantifikasi Huruf & Simbol Standar Kuil</p>
+          </div>
+        </div>
+        <button id="btnCloseRosetta" class="text-slate-400 hover:text-white p-1">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-3 bg-temple-900 border-b border-slate-800 flex flex-col sm:flex-row gap-2 items-center justify-between">
+        <div class="relative w-full sm:w-72">
+          <input type="text" id="rosettaSearchInput" placeholder="Cari huruf atau angka..." class="w-full bg-temple-850 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+        </div>
+        <div class="w-full sm:w-auto flex items-center gap-2 text-xs">
+          <span class="text-slate-400">Uji Huruf (Kapital/Kecil):</span>
+          <input type="text" id="rosettaQuickTest" maxlength="1" placeholder="A/a" class="w-12 text-center font-mono font-bold bg-temple-850 border border-amber-500/50 rounded py-1 text-amber-300 focus:outline-none focus:border-amber-400">
+          <span class="text-slate-400">➔ Nilai x:</span>
+          <span id="rosettaQuickVal" class="font-mono font-bold text-amber-400 text-sm bg-temple-800 px-2 py-0.5 rounded border border-slate-700 min-w-[32px] text-center">-</span>
+        </div>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-4">
+        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
+          <strong>Aturan:</strong> Spasi = 0 | A-Z = 1 s/d 26 (Kapital) | a-z = -1 s/d -26 (Kecil)
+        </div>
+        <div>
+          <h4 class="text-xs font-mono font-bold uppercase text-amber-400 mb-2">[SPASI] & HURUF KAPITAL (A - Z = 1 s/d 26)</h4>
+          <div id="rosettaGridUpper" class="grid grid-cols-4 sm:grid-cols-7 md:grid-cols-9 gap-1.5 font-mono text-xs text-center"></div>
+        </div>
+        <div>
+          <h4 class="text-xs font-mono font-bold uppercase text-sky-400 mb-2">HURUF KECIL (a - z = -1 s/d -26)</h4>
+          <div id="rosettaGridLower" class="grid grid-cols-4 sm:grid-cols-7 md:grid-cols-9 gap-1.5 font-mono text-xs text-center"></div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-temple-900 border-t border-slate-800 text-right">
+        <button id="btnDismissRosetta" class="px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-black font-cinzel font-bold text-xs">
+          TUTUP BATU ROSETTA
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: PAPAN CORETAN ================= -->
+  <div id="modalScratchpad" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6">
+    <div class="stone-card rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col border-amber-500/50 shadow-2xl">
+      <div class="p-4 border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">✏️</span>
+          <h3 class="font-cinzel font-bold text-base sm:text-lg text-white">PAPAN CORETAN & UJI INVERS</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="tabBtnCanvas" class="px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold text-xs">🎨 Coretan Bebas</button>
+          <button id="tabBtnCalc" class="px-3 py-1.5 rounded-lg bg-temple-800 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700">🧮 Sandbox Rumus</button>
+          <button id="btnCloseScratchpad" class="text-slate-400 hover:text-white p-1 ml-2">✕</button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 flex flex-col">
+        <!-- Canvas Drawing -->
+        <div id="panelCanvas" class="flex-1 flex flex-col space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 p-2 bg-temple-900 rounded-xl border border-slate-700 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400">Warna:</span>
+              <button data-color="#fde047" class="w-5 h-5 rounded-full bg-amber-300 ring-2 ring-white color-picker-btn"></button>
+              <button data-color="#38bdf8" class="w-5 h-5 rounded-full bg-sky-400 color-picker-btn"></button>
+              <button data-color="#ffffff" class="w-5 h-5 rounded-full bg-white color-picker-btn"></button>
+              <button data-color="#f43f5e" class="w-5 h-5 rounded-full bg-rose-500 color-picker-btn"></button>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="range" id="brushSize" min="2" max="14" value="4" class="w-20 accent-amber-500">
+              <button id="btnCanvasEraser" class="px-2 py-0.5 rounded bg-temple-800 hover:bg-temple-700 text-slate-300 border border-slate-700">Penghapus</button>
+              <button id="btnCanvasClear" class="px-2 py-0.5 rounded bg-rose-900/40 text-rose-300 border border-rose-700/50">Bersihkan</button>
+            </div>
+          </div>
+          <div class="flex-1 min-h-[320px] bg-temple-900/90 rounded-xl border border-slate-700 overflow-hidden relative touch-none shadow-stone-inset">
+            <canvas id="scratchCanvas" class="w-full h-full cursor-crosshair"></canvas>
+          </div>
+        </div>
+
+        <!-- Math Sandbox -->
+        <div id="panelCalc" class="hidden space-y-4">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <!-- Linear -->
+            <div class="p-3.5 rounded-lg bg-temple-850 border border-slate-700 space-y-2 text-xs">
+              <span class="font-mono font-bold text-amber-400">1. Linear: f(x) = ax + b</span>
+              <div>
+                <label class="text-[11px] text-slate-400">Ketik Rumus Bebas (cth: <code class="text-amber-300">3x - 5</code>):</label>
+                <input type="text" id="sandboxLinearFormula" placeholder="f(x) = 2x + 3" class="w-full bg-temple-900 border border-slate-700 rounded p-1 text-amber-300 font-mono mt-0.5">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div><label class="text-slate-400">Koefisien a:</label><input type="number" id="sandboxA" value="2" step="any" class="w-full bg-temple-900 border border-slate-700 rounded p-1 text-white"></div>
+                <div><label class="text-slate-400">Konstanta b:</label><input type="number" id="sandboxB" value="3" step="any" class="w-full bg-temple-900 border border-slate-700 rounded p-1 text-white"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400">Angka y:</span>
+                <input type="number" id="sandboxYLinear" value="13" class="w-20 bg-temple-900 border border-slate-700 rounded p-1 text-amber-300 font-bold">
+                <button id="btnCalcLinear" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 font-bold rounded text-black transition-colors">Hitung x</button>
+              </div>
+              <div id="resultLinear" class="p-2 rounded bg-temple-900 text-slate-300 font-mono">Hasil: x = 5 ➔ Huruf: E</div>
+            </div>
+
+            <!-- Composition -->
+            <div class="p-3.5 rounded-lg bg-temple-850 border border-slate-700 space-y-2 text-xs">
+              <span class="font-mono font-bold text-amber-400">2. Komposisi: (g ∘ f)(x) = c(ax + b) + d</span>
+              <div>
+                <label class="text-[11px] text-slate-400">Ketik Rumus Bebas (cth: <code class="text-amber-300">6x + 5</code>):</label>
+                <input type="text" id="sandboxCompFormula" placeholder="(g ∘ f)(x) = 6x + 5" class="w-full bg-temple-900 border border-slate-700 rounded p-1 text-amber-300 font-mono mt-0.5">
+              </div>
+              <div class="grid grid-cols-4 gap-1">
+                <div><label class="text-slate-400">a</label><input type="number" id="compA" value="2" step="any" class="w-full bg-temple-900 border border-slate-700 rounded p-1 text-white"></div>
+                <div><label class="text-slate-400">b</label><input type="number" id="compB" value="1" step="any" class="w-full bg-temple-900 border border-slate-700 rounded p-1 text-white"></div>
+                <div><label class="text-slate-400">c</label><input type="number" id="compC" value="3" step="any" class="w-full bg-temple-900 border border-slate-700 rounded p-1 text-white"></div>
+                <div><label class="text-slate-400">d</label><input type="number" id="compD" value="2" step="any" class="w-full bg-temple-900 border border-slate-700 rounded p-1 text-white"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400">Angka y:</span>
+                <input type="number" id="sandboxYComp" value="35" class="w-20 bg-temple-900 border border-slate-700 rounded p-1 text-amber-300 font-bold">
+                <button id="btnCalcComp" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 font-bold rounded text-black transition-colors">Hitung x</button>
+              </div>
+              <div id="resultComp" class="p-2 rounded bg-temple-900 text-slate-300 font-mono">Hasil: x = 5 ➔ Huruf: E</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: PANDUAN KONSEP MATEMATIKA ================= -->
+  <div id="modalMathGuide" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6">
+    <div class="stone-card rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border-amber-500/50 shadow-2xl">
+      <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+        <h3 class="font-cinzel font-bold text-lg text-amber-300">PANDUAN KONSEP & RUMUS INVERS</h3>
+        <button id="btnCloseMathGuide" class="text-slate-400 hover:text-white p-1">✕</button>
+      </div>
+      <div class="p-4 overflow-y-auto space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+        <div class="p-3 rounded-xl bg-temple-900 border border-slate-700 space-y-1">
+          <h4 class="font-bold text-amber-400 font-mono uppercase">1. Linear: f(x) = x + b</h4>
+          <p>Rumus Invers: <strong class="text-amber-200">f⁻¹(y) = y - b</strong></p>
+        </div>
+        <div class="p-3 rounded-xl bg-temple-900 border border-slate-700 space-y-1">
+          <h4 class="font-bold text-amber-400 font-mono uppercase">2. Linear: f(x) = ax + b</h4>
+          <p>Rumus Invers: <strong class="text-amber-200">f⁻¹(y) = (y - b) / a</strong></p>
+        </div>
+        <div class="p-3 rounded-xl bg-temple-900 border border-slate-700 space-y-1">
+          <h4 class="font-bold text-amber-400 font-mono uppercase">3. Komposisi: (g ∘ f)(x) = c(ax + b) + d</h4>
+          <p>Rumus Invers: <strong class="text-amber-200">(g ∘ f)⁻¹(y) = (y - (cb + d)) / (ca)</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: TRAP RESET DIALOG ================= -->
+  <div id="modalTrapReset" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="stone-card rounded-2xl max-w-md w-full p-6 text-center space-y-4 border-rose-600 shadow-ruby-glow">
+      <div class="w-14 h-14 mx-auto rounded-full bg-rose-600/20 border-2 border-rose-500 flex items-center justify-center text-rose-500 text-2xl">
+        ⚠️
+      </div>
+      <div class="space-y-1">
+        <span class="text-xs font-mono font-bold text-rose-400 uppercase">2 KALI SALAH MENJAWAB!</span>
+        <h3 class="text-2xl font-cinzel font-extrabold text-white">JEBAKAN KUIL AKTIF!</h3>
+        <p class="text-xs text-slate-300">
+          Lantai runtuh! Karaktermu terlempar kembali ke <strong class="text-rose-400">Pintu 1</strong>. Sistem telah mengacak ulang rumus fungsi baru agar kamu tidak sekadar menghafal!
+        </p>
+      </div>
+      <button id="btnConfirmTrapReset" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-600 to-rose-800 text-white font-cinzel font-bold text-xs tracking-wider shadow-ruby-glow">
+        BANGKIT KEMBALI DI GERBANG KUIL (PINTU 1)
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: DUEL LOCKED ================= -->
+  <div id="modalDuelLocked" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="stone-card rounded-2xl max-w-md w-full p-6 text-center space-y-4 border-amber-500 shadow-gold-glow">
+      <div class="w-14 h-14 mx-auto rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-amber-400 text-2xl">
+        🔒
+      </div>
+      <div class="space-y-1">
+        <span class="text-xs font-mono font-bold text-amber-400 uppercase">Sandi Terkunci!</span>
+        <h3 class="text-xl font-cinzel font-bold text-white">GILIRAN TIM PEMECAH SANDI</h3>
+        <p class="text-xs text-slate-300">
+          Teks asli disembunyikan. Serahkan layar kepada <strong class="text-amber-300" id="duelTargetTeamName">Tim Ekspedisi B</strong> untuk menjelajahi kuil 2D dan memecahkan sandi!
+        </p>
+      </div>
+      <button id="btnStartDuelPhase2" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-700 text-black font-cinzel font-bold text-xs tracking-wider shadow-gold-glow">
+        KAMI SIAP, MULAI PENJELAJAHAN 2D! ➔
+      </button>
+    </div>
+  </div>
+
+  <!-- Modular Game Engine JavaScript -->
+  <script src="game.js"></script>
+</body>
+</html>
